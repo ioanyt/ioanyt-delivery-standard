@@ -1,0 +1,206 @@
+# Continuous Deployment - Production
+#
+# Manual approval required before production deployment.
+# Triggered by GitHub release or manual workflow dispatch.
+#
+# Safety features:
+# - Manual approval gate
+# - Terraform plan review
+# - Automatic rollback on health check failure
+
+name: Deploy to Production
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: ioanyt-delivery-standard
+  ECS_CLUSTER: ioanyt-prod
+  ECS_SERVICE: delivery-standard
+  ENVIRONMENT: prod
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    outputs:
+      plan_exit_code: ${{ steps.plan.outputs.exitcode }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_PROD }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Init
+        working-directory: infrastructure/terraform/environments/prod
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: infrastructure/terraform/environments/prod
+        run: |
+          terraform plan \
+            -var="image_tag=${{ github.event.release.tag_name || github.event.inputs.version }}" \
+            -detailed-exitcode \
+            -out=tfplan
+        continue-on-error: true
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: infrastructure/terraform/environments/prod/tfplan
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: plan
+    environment: production  # Requires approval
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_PROD }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get image tag
+        id: image-tag
+        run: |
+          TAG="${{ github.event.release.tag_name || github.event.inputs.version }}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Verify image exists
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker manifest inspect $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.image-tag.outputs.tag }}
+
+      - name: Tag image for production
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.image-tag.outputs.tag }}
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.image-tag.outputs.tag }} $ECR_REGISTRY/$ECR_REPOSITORY:prod
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:prod
+
+      - name: Download plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: infrastructure/terraform/environments/prod
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Init
+        working-directory: infrastructure/terraform/environments/prod
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: infrastructure/terraform/environments/prod
+        run: terraform apply -auto-approve tfplan
+
+      - name: Update ECS Service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE }} \
+            --force-new-deployment
+
+      - name: Wait for deployment
+        run: |
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_SERVICE }}
+
+      - name: Health check
+        id: health
+        run: |
+          ENDPOINT=$(terraform -chdir=infrastructure/terraform/environments/prod output -raw api_endpoint)
+          curl -f "$ENDPOINT/health" || exit 1
+          echo "Production deployment successful!"
+
+      - name: Rollback on failure
+        if: failure() && steps.health.outcome == 'failure'
+        run: |
+          echo "Health check failed, initiating rollback..."
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE }} \
+            --task-definition $(aws ecs describe-services \
+              --cluster ${{ env.ECS_CLUSTER }} \
+              --services ${{ env.ECS_SERVICE }} \
+              --query 'services[0].deployments[1].taskDefinition' \
+              --output text)
+
+      - name: Notify success
+        if: success()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "Production deployment successful!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":white_check_mark: *Production Deployment Successful*\nVersion: ${{ steps.image-tag.outputs.tag }}\nRepo: ${{ github.repository }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "Production deployment failed!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":x: *Production Deployment Failed*\nVersion: ${{ steps.image-tag.outputs.tag }}\nRepo: ${{ github.repository }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

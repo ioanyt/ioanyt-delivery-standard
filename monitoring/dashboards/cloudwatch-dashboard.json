@@ -1,0 +1,264 @@
+{
+  "description": "IOanyT Delivery Standard - Service Dashboard",
+  "variables": [
+    {
+      "name": "environment",
+      "type": "pattern",
+      "pattern": "staging|prod",
+      "defaultValue": "prod"
+    }
+  ],
+  "widgets": [
+    {
+      "type": "text",
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 1,
+      "properties": {
+        "markdown": "# IOanyT Delivery Standard - Service Health Dashboard\n**Environment**: ${environment} | [Runbook](../docs/RUNBOOK.md)"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 1,
+      "width": 6,
+      "height": 6,
+      "properties": {
+        "title": "Request Count",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["AWS/ApplicationELB", "RequestCount", "LoadBalancer", "delivery-standard-${environment}"]
+        ],
+        "period": 60,
+        "stat": "Sum",
+        "region": "${AWS::Region}"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 6,
+      "y": 1,
+      "width": 6,
+      "height": 6,
+      "properties": {
+        "title": "Response Time (p50, p95, p99)",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "delivery-standard-${environment}", {"stat": "p50", "label": "p50"}],
+          ["...", {"stat": "p95", "label": "p95"}],
+          ["...", {"stat": "p99", "label": "p99"}]
+        ],
+        "period": 60,
+        "region": "${AWS::Region}"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 1,
+      "width": 6,
+      "height": 6,
+      "properties": {
+        "title": "HTTP Status Codes",
+        "view": "timeSeries",
+        "stacked": true,
+        "metrics": [
+          ["AWS/ApplicationELB", "HTTPCode_Target_2XX_Count", "LoadBalancer", "delivery-standard-${environment}", {"color": "#2ca02c", "label": "2xx"}],
+          [".", "HTTPCode_Target_4XX_Count", ".", ".", {"color": "#ff7f0e", "label": "4xx"}],
+          [".", "HTTPCode_Target_5XX_Count", ".", ".", {"color": "#d62728", "label": "5xx"}]
+        ],
+        "period": 60,
+        "stat": "Sum",
+        "region": "${AWS::Region}"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 18,
+      "y": 1,
+      "width": 6,
+      "height": 6,
+      "properties": {
+        "title": "Error Rate (%)",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          [
+            {
+              "expression": "(m2/m1)*100",
+              "label": "Error Rate %",
+              "id": "e1",
+              "color": "#d62728"
+            }
+          ],
+          ["AWS/ApplicationELB", "RequestCount", "LoadBalancer", "delivery-standard-${environment}", {"id": "m1", "visible": false}],
+          [".", "HTTPCode_Target_5XX_Count", ".", ".", {"id": "m2", "visible": false}]
+        ],
+        "period": 60,
+        "region": "${AWS::Region}",
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 7,
+      "width": 24,
+      "height": 1,
+      "properties": {
+        "markdown": "## ECS Service Metrics"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 8,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "CPU Utilization",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["AWS/ECS", "CPUUtilization", "ClusterName", "ioanyt-${environment}", "ServiceName", "delivery-standard"]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "${AWS::Region}",
+        "annotations": {
+          "horizontal": [
+            {
+              "label": "Scale Out Threshold",
+              "value": 70,
+              "color": "#ff7f0e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8,
+      "y": 8,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "Memory Utilization",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["AWS/ECS", "MemoryUtilization", "ClusterName", "ioanyt-${environment}", "ServiceName", "delivery-standard"]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "${AWS::Region}",
+        "annotations": {
+          "horizontal": [
+            {
+              "label": "Scale Out Threshold",
+              "value": 80,
+              "color": "#ff7f0e"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16,
+      "y": 8,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "Running Task Count",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["ECS/ContainerInsights", "RunningTaskCount", "ClusterName", "ioanyt-${environment}", "ServiceName", "delivery-standard"]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "${AWS::Region}"
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 14,
+      "width": 24,
+      "height": 1,
+      "properties": {
+        "markdown": "## Target Group Health"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 15,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Healthy vs Unhealthy Hosts",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["AWS/ApplicationELB", "HealthyHostCount", "TargetGroup", "delivery-standard-${environment}", "LoadBalancer", "delivery-standard-${environment}", {"color": "#2ca02c", "label": "Healthy"}],
+          [".", "UnHealthyHostCount", ".", ".", ".", ".", {"color": "#d62728", "label": "Unhealthy"}]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "${AWS::Region}"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 15,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Active Connection Count",
+        "view": "timeSeries",
+        "stacked": false,
+        "metrics": [
+          ["AWS/ApplicationELB", "ActiveConnectionCount", "LoadBalancer", "delivery-standard-${environment}"]
+        ],
+        "period": 60,
+        "stat": "Sum",
+        "region": "${AWS::Region}"
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 21,
+      "width": 24,
+      "height": 1,
+      "properties": {
+        "markdown": "## Application Logs"
+      }
+    },
+    {
+      "type": "log",
+      "x": 0,
+      "y": 22,
+      "width": 24,
+      "height": 6,
+      "properties": {
+        "title": "Error Logs",
+        "query": "SOURCE '/ecs/delivery-standard-${environment}' | fields @timestamp, @message | filter @message like /error|Error|ERROR/ | sort @timestamp desc | limit 50",
+        "region": "${AWS::Region}",
+        "view": "table"
+      }
+    }
+  ]
+}

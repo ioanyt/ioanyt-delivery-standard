@@ -1,0 +1,65 @@
+{
+  "name": "ioanyt-delivery-standard",
+  "version": "1.0.0",
+  "description": "IOanyT Delivery Standard - Reference implementation demonstrating production-ready delivery practices",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest --coverage",
+    "test:unit": "jest tests/unit --coverage",
+    "test:integration": "jest tests/integration --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint src tests --ext .js",
+    "lint:fix": "eslint src tests --ext .js --fix",
+    "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\"",
+    "security": "npm audit --production",
+    "validate": "npm run lint && npm run test && npm run security"
+  },
+  "keywords": [
+    "api",
+    "usage-metrics",
+    "express",
+    "reference-implementation",
+    "delivery-standard"
+  ],
+  "author": "IOanyT <engineering@ioanyt.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "morgan": "^1.10.0",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "express-validator": "^7.0.1",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.4",
+    "nodemon": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/index.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
+  }
+}
