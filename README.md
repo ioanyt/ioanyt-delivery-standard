@@ -78,8 +78,19 @@ npm run lint
 
 - [Architecture](docs/ARCHITECTURE.md) - System design and decisions
 - [API Documentation](docs/API.md) - Complete API reference
+- [OpenAPI Specification](docs/openapi.yaml) - Machine-readable API spec
 - [Runbook](docs/RUNBOOK.md) - Operations and troubleshooting
 - [Handoff Guide](docs/HANDOFF.md) - Team onboarding
+
+## Project Management
+
+This project demonstrates proper agile delivery with full traceability:
+
+- [Requirements Documentation](docs/requirements/) - Epics, Stories, and Sprint planning
+- [GitHub Project Board](https://github.com/orgs/ioanyt/projects/1) - Sprint tracking with Story Points
+- [GitHub Issues](https://github.com/ioanyt/ioanyt-delivery-standard/issues) - 6 Epics + 18 Stories
+
+> **Note:** This is a reference implementation. All issues are marked as "Done" to demonstrate a completed delivery.
 
 ## Our Delivery Standard
 
