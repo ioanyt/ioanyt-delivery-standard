@@ -1,5 +1,8 @@
 # Production-Ready Node.js API with AWS, Terraform & CI/CD
 
+[![CI](https://github.com/ioanyt/ioanyt-delivery-standard/actions/workflows/ci.yml/badge.svg)](https://github.com/ioanyt/ioanyt-delivery-standard/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **Enterprise-grade software delivery reference implementation demonstrating how to build, deploy, and operate production-ready backend services.**
 
 This repository shows what professional software delivery looks like: a complete Node.js REST API with AWS ECS Fargate infrastructure, Terraform IaC, GitHub Actions CI/CD pipelines, CloudWatch monitoring, and full operational documentation.
@@ -136,6 +139,29 @@ docs/requirements/
 
 > **Note:** This is a reference implementation. All issues are marked "Done" to demonstrate a completed delivery.
 
+## Architecture
+
+```
+                              ┌─────────────────────────────────────────┐
+                              │              AWS Cloud                   │
+                              │                                          │
+┌──────────┐     HTTPS       │  ┌───────┐      ┌─────────────────┐     │
+│  Client  │ ───────────────▶│  │  ALB  │─────▶│   ECS Fargate   │     │
+└──────────┘                 │  └───────┘      │  ┌───────────┐  │     │
+                              │                 │  │  Task 1   │  │     │
+                              │                 │  │  Task 2   │  │     │
+                              │                 │  └───────────┘  │     │
+                              │                 └────────┬────────┘     │
+                              │                          │              │
+                              │                          ▼              │
+                              │                 ┌─────────────────┐     │
+                              │                 │   CloudWatch    │     │
+                              │                 └─────────────────┘     │
+                              └─────────────────────────────────────────┘
+```
+
+See [Architecture Documentation](docs/ARCHITECTURE.md) for detailed component diagrams and design decisions.
+
 ## Technology Stack
 
 | Layer | Technology |
@@ -166,6 +192,8 @@ See [DELIVERY_CHECKLIST.md](DELIVERY_CHECKLIST.md) for our complete quality chec
 ## License
 
 MIT License - See [LICENSE](LICENSE) for details.
+
+> **Note:** This repository is a reference implementation for demonstration purposes. When you engage IOanyT for a project, your deliverables are your intellectual property with full ownership transferred upon completion.
 
 ---
 
