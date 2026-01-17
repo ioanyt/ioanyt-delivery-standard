@@ -34,9 +34,7 @@ const logger = winston.createLogger({
     service: config.app.name,
     version: config.app.version,
   },
-  transports: [
-    new winston.transports.Console(),
-  ],
+  transports: [new winston.transports.Console()],
 });
 
 // Add convenience method for request logging

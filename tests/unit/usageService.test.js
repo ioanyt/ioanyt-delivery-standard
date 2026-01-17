@@ -187,9 +187,7 @@ describe('UsageService', () => {
       const result = usageService.getEvents({ limit: 10 });
 
       for (let i = 1; i < result.events.length; i++) {
-        expect(result.events[i - 1].createdAt).toBeGreaterThanOrEqual(
-          result.events[i].createdAt
-        );
+        expect(result.events[i - 1].createdAt).toBeGreaterThanOrEqual(result.events[i].createdAt);
       }
     });
   });

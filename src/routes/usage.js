@@ -19,7 +19,10 @@ const router = express.Router();
 const handleValidation = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const messages = errors.array().map((e) => e.msg).join(', ');
+    const messages = errors
+      .array()
+      .map((e) => e.msg)
+      .join(', ');
     throw new AppError(messages, 400, 'VALIDATION_ERROR');
   }
   next();
@@ -46,19 +49,9 @@ router.get('/stats', (req, res) => {
 router.get(
   '/:entityId',
   [
-    param('entityId')
-      .notEmpty()
-      .withMessage('entityId is required')
-      .isString()
-      .trim(),
-    query('since')
-      .optional()
-      .isISO8601()
-      .withMessage('since must be a valid ISO8601 date'),
-    query('until')
-      .optional()
-      .isISO8601()
-      .withMessage('until must be a valid ISO8601 date'),
+    param('entityId').notEmpty().withMessage('entityId is required').isString().trim(),
+    query('since').optional().isISO8601().withMessage('since must be a valid ISO8601 date'),
+    query('until').optional().isISO8601().withMessage('until must be a valid ISO8601 date'),
   ],
   handleValidation,
   (req, res) => {
@@ -81,19 +74,9 @@ router.get(
 router.get(
   '/:entityId/history',
   [
-    param('entityId')
-      .notEmpty()
-      .withMessage('entityId is required')
-      .isString()
-      .trim(),
-    query('since')
-      .optional()
-      .isISO8601()
-      .withMessage('since must be a valid ISO8601 date'),
-    query('until')
-      .optional()
-      .isISO8601()
-      .withMessage('until must be a valid ISO8601 date'),
+    param('entityId').notEmpty().withMessage('entityId is required').isString().trim(),
+    query('since').optional().isISO8601().withMessage('since must be a valid ISO8601 date'),
+    query('until').optional().isISO8601().withMessage('until must be a valid ISO8601 date'),
     query('interval')
       .optional()
       .isIn(['minute', 'hour', 'day'])

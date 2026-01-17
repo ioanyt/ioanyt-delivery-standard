@@ -21,7 +21,7 @@ class AppError extends Error {
   }
 }
 
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
   // Default values
   const statusCode = err.statusCode || 500;
   const code = err.code || 'INTERNAL_ERROR';

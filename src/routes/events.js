@@ -18,7 +18,10 @@ const router = express.Router();
 const handleValidation = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const messages = errors.array().map((e) => e.msg).join(', ');
+    const messages = errors
+      .array()
+      .map((e) => e.msg)
+      .join(', ');
     throw new AppError(messages, 400, 'VALIDATION_ERROR');
   }
   next();
@@ -47,10 +50,7 @@ router.post(
       .trim()
       .isLength({ max: 100 })
       .withMessage('eventType must be 100 characters or less'),
-    body('metadata')
-      .optional()
-      .isObject()
-      .withMessage('metadata must be an object'),
+    body('metadata').optional().isObject().withMessage('metadata must be an object'),
   ],
   handleValidation,
   (req, res) => {
@@ -83,11 +83,7 @@ router.get(
       .isInt({ min: 1, max: 1000 })
       .withMessage('limit must be between 1 and 1000')
       .toInt(),
-    query('offset')
-      .optional()
-      .isInt({ min: 0 })
-      .withMessage('offset must be 0 or greater')
-      .toInt(),
+    query('offset').optional().isInt({ min: 0 }).withMessage('offset must be 0 or greater').toInt(),
   ],
   handleValidation,
   (req, res) => {

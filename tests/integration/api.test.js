@@ -111,47 +111,38 @@ describe('API Integration Tests', () => {
       });
 
       it('should return validation error for missing entityId', async () => {
-        const res = await request(app)
-          .post('/v1/events')
-          .send({
-            eventType: 'api_call',
-          });
+        const res = await request(app).post('/v1/events').send({
+          eventType: 'api_call',
+        });
 
         expect(res.status).toBe(400);
         expect(res.body.error.code).toBe('VALIDATION_ERROR');
       });
 
       it('should return validation error for missing eventType', async () => {
-        const res = await request(app)
-          .post('/v1/events')
-          .send({
-            entityId: 'user_123',
-          });
+        const res = await request(app).post('/v1/events').send({
+          entityId: 'user_123',
+        });
 
         expect(res.status).toBe(400);
         expect(res.body.error.code).toBe('VALIDATION_ERROR');
       });
 
       it('should include trace ID in response', async () => {
-        const res = await request(app)
-          .post('/v1/events')
-          .send({
-            entityId: 'user_123',
-            eventType: 'api_call',
-          });
+        const res = await request(app).post('/v1/events').send({
+          entityId: 'user_123',
+          eventType: 'api_call',
+        });
 
         expect(res.headers).toHaveProperty('x-trace-id');
       });
 
       it('should accept custom trace ID', async () => {
         const customTraceId = 'custom-trace-123';
-        const res = await request(app)
-          .post('/v1/events')
-          .set('x-trace-id', customTraceId)
-          .send({
-            entityId: 'user_123',
-            eventType: 'api_call',
-          });
+        const res = await request(app).post('/v1/events').set('x-trace-id', customTraceId).send({
+          entityId: 'user_123',
+          eventType: 'api_call',
+        });
 
         expect(res.headers['x-trace-id']).toBe(customTraceId);
       });
@@ -175,9 +166,7 @@ describe('API Integration Tests', () => {
       });
 
       it('should support pagination', async () => {
-        const res = await request(app)
-          .get('/v1/events')
-          .query({ limit: 5, offset: 0 });
+        const res = await request(app).get('/v1/events').query({ limit: 5, offset: 0 });
 
         expect(res.status).toBe(200);
         expect(res.body.data.pagination.limit).toBe(5);
@@ -185,9 +174,7 @@ describe('API Integration Tests', () => {
       });
 
       it('should filter by entityId', async () => {
-        const res = await request(app)
-          .get('/v1/events')
-          .query({ entityId: 'test_user' });
+        const res = await request(app).get('/v1/events').query({ entityId: 'test_user' });
 
         expect(res.status).toBe(200);
         res.body.data.events.forEach((event) => {
@@ -200,9 +187,7 @@ describe('API Integration Tests', () => {
   describe('Usage API', () => {
     beforeEach(async () => {
       // Create test events
-      await request(app)
-        .post('/v1/events')
-        .send({ entityId: 'usage_test', eventType: 'api_call' });
+      await request(app).post('/v1/events').send({ entityId: 'usage_test', eventType: 'api_call' });
       await request(app)
         .post('/v1/events')
         .send({ entityId: 'usage_test', eventType: 'file_upload' });
@@ -266,9 +251,7 @@ describe('API Integration Tests', () => {
 
     describe('Validation Errors', () => {
       it('should return 400 for invalid limit', async () => {
-        const res = await request(app)
-          .get('/v1/events')
-          .query({ limit: -1 });
+        const res = await request(app).get('/v1/events').query({ limit: -1 });
 
         expect(res.status).toBe(400);
         expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -279,9 +262,7 @@ describe('API Integration Tests', () => {
   describe('Self-Tracking', () => {
     it('should track API calls to itself', async () => {
       // Make a request
-      await request(app)
-        .post('/v1/events')
-        .send({ entityId: 'external_user', eventType: 'test' });
+      await request(app).post('/v1/events').send({ entityId: 'external_user', eventType: 'test' });
 
       // Check self-tracked events
       const res = await request(app).get('/v1/usage/api-self');
