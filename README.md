@@ -189,6 +189,31 @@ Every IOanyT engagement includes:
 
 See [DELIVERY_CHECKLIST.md](DELIVERY_CHECKLIST.md) for our complete quality checklist.
 
+## Proof: We Apply This Standard to Ourselves
+
+We don't just publish standards—we follow them. Our own website demonstrates systematic quality:
+
+| Metric | Target | ioanyt.com Result |
+|--------|--------|-------------------|
+| Performance | 95+ | **100** |
+| Accessibility | 95+ | **95** |
+| Best Practices | 95+ | **100** |
+| SEO | 95+ | **99** |
+| **Overall** | 95+ | **98.5** |
+
+**The achievement isn't the score—it's consistency.** All 31 pages maintain these standards, not just the homepage.
+
+```bash
+# Verify yourself (any page, not just homepage)
+npx lighthouse https://ioanyt.com
+npx lighthouse https://ioanyt.com/services/devops-infrastructure
+npx lighthouse https://ioanyt.com/privacy-policy
+```
+
+> Most websites follow an 80/15/5 rule: 80% effort on homepage, 15% on main pages, 5% on everything else. We apply 100% of the standard to 100% of pages.
+
+The same systematic approach that built our website is what we bring to client engagements.
+
 ## License
 
 MIT License - See [LICENSE](LICENSE) for details.
