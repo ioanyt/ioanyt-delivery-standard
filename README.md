@@ -201,7 +201,7 @@ We don't just publish standards—we follow them. Our own website demonstrates s
 | SEO | 95+ | **99** |
 | **Overall** | 95+ | **98.5** |
 
-**The achievement isn't the score—it's consistency.** All 31 pages maintain these standards, not just the homepage.
+**The achievement isn't the score—it's consistency.** Every page on ioanyt.com maintains these standards, not just the homepage.
 
 ```bash
 # Verify yourself (any page, not just homepage)
