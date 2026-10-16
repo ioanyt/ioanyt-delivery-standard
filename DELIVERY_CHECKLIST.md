@@ -1,6 +1,6 @@
 # IOanyT Delivery Checklist
 
-**Every project we deliver meets these standards.**
+**The standard we build and hand over to.**
 
 This checklist represents our commitment to production-ready delivery. We don't just ship code—we deliver operational systems that your team can own from day one.
 
@@ -8,8 +8,8 @@ This checklist represents our commitment to production-ready delivery. We don't 
 
 ## Code Quality
 
-- [x] **Test Coverage ≥80%** - Unit and integration tests covering critical paths
-- [x] **Zero Critical Vulnerabilities** - Security scan passes (npm audit, Snyk)
+- [x] **Automated Tests** - Unit and integration tests covering critical paths
+- [x] **Critical Vulnerabilities Fixed Before Release** - Security scan passes (npm audit, Snyk)
 - [x] **Linting Passes** - ESLint with zero errors or warnings
 - [x] **Code Review Completed** - All code reviewed before merge
 - [x] **No Debug Code** - Console.logs, commented code, TODOs removed
@@ -28,7 +28,7 @@ This checklist represents our commitment to production-ready delivery. We don't 
 
 ## Infrastructure
 
-- [x] **100% Infrastructure as Code** - No manual AWS console changes
+- [x] **Infrastructure as Code** - No manual AWS console changes
 - [x] **Separate Environments** - Dev, staging, and production isolated
 - [x] **Secrets Management** - No secrets in code, use AWS Secrets Manager/SSM
 - [x] **Auto-Scaling Configured** - Scales based on CPU/memory thresholds
@@ -74,7 +74,7 @@ This checklist represents our commitment to production-ready delivery. We don't 
 
 ### No Hidden Surprises
 
-Every checkbox above is verified before we consider a project complete. You won't inherit:
+We check this list before handoff. You won't inherit:
 - Untested code paths that break in production
 - Infrastructure that only we know how to manage
 - Missing documentation that creates knowledge silos
@@ -110,7 +110,7 @@ By delivering operational maturity alongside code, we eliminate:
 
 We don't deliver code. We deliver systems.
 
-If any item on this checklist isn't met, we'll address it before considering the project complete—no excuses, no extra charges.
+If an item on this checklist isn't met, we tell you and agree how it will be closed before handoff.
 
 ---
 
