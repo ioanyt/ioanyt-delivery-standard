@@ -13,7 +13,6 @@ name: Deploy to Staging
 
 on:
   workflow_dispatch:
-  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-1
