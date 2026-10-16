@@ -1,6 +1,7 @@
 # Continuous Deployment - Staging
 #
-# Automatically deploys to staging on merge to main.
+# Deploys to staging on demand (Actions -> Deploy to Staging -> Run workflow).
+# Switch the trigger back to `push: branches: [main]` once the AWS secrets below are configured.
 # Uses Terraform to provision/update infrastructure.
 #
 # Prerequisites:
@@ -11,8 +12,7 @@
 name: Deploy to Staging
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
   workflow_dispatch:
 
 env:
